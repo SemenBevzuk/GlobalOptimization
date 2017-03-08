@@ -3,10 +3,12 @@
 // Первое ограничение
 double f1(double x, double y) {
 	return 0.01*(pow(x - 2.2, 2) + pow(y - 1.2, 2) - 2.25);
+	//return x + y - 1;
 }
 // Второе ограничение
 double f2(double x, double y) {
-	return 100 * (1 - pow(x - 2, 2)) / (1.44 - pow(0.5*y, 2));
+	return 100 * (1 - pow(x - 2, 2) / 1.44 - pow(0.5*y, 2));
+	//return x - y + 1;
 }
 // Третье ограничение
 double f3(double x, double y) {
@@ -23,10 +25,10 @@ int main(int argc, char* argv[]) {
 	im.b = 1;
 	im.eps = 0.001;
 	im.N = 2;
-	im.m = 12;
+	im.m = 10;
 
 	im.NumFuncs = 4;
-	im.SetSearchAreas(0,3,0,3);
+	im.SetSearchAreas(0,4,-1,3);
 	im.Funcs[0] = f1;
 	im.Funcs[1] = f2;
 	im.Funcs[2] = f3;
