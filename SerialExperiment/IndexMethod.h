@@ -4,6 +4,8 @@
 #include <math.h>
 #include <fstream>
 
+#include "vagris.h"
+
 #define MaxFuncs 10
 #include "map.h"
 
@@ -62,6 +64,8 @@ public:
 	~CMethod() {}
 	//Запуск метода
 	Result Run();
+	//Запуск метода c возможностью сравнения ответа непосредственно 
+	Result Run(int nfunc, double eps);
 	//Функции задачи
 	pFunc Funcs[MaxFuncs];
 	//Лучшее испытание
@@ -157,6 +161,59 @@ Result CMethod::Run() {
 	return res;
 }
 
+Result CMethod::Run(int nfunc, double eps) {
+	// Инициализация процесса поиска
+	Init();
+	//Условие остановки не выполнено
+	bool stop = false;
+	CTrial trial;
+	int count = 1;
+
+	set_random(nfunc);
+	double real_x, real_y, real_value;
+	double delta_value;
+
+	while (!stop) {
+		// Определение множества I
+		CalculateI();
+		// Вычисление значений относительных разностей 
+		CalculateM();
+		// Вычисление значений Z
+		CalculateZ();
+		// Поиск интервала с максимальной характеристикой 
+		pTrial t = FindMaxR();
+		//Проведение испытания в интервале t
+		pTrial t1 = t;
+		t1--;
+		if (t->index != t1->index) {
+			trial = MakeTrial(0.5*(t->x + t1->x));
+		}
+		else {
+			trial = MakeTrial(0.5*(t->x + t1->x) - sign(t->Value - t1->Value)*pow(fabs(t->Value - t1->Value) / M[t->index], N)*(1.0 / (2 * r[t->index])));
+		}
+		count++;
+		//Вставка результатов очередного испытания
+		stop = InsertTrial(trial);
+
+		real_x = rand_minimums[(nfunc - 1) * 2];
+		real_y = rand_minimums[(nfunc - 1) * 2 + 1];
+		real_value = random_func(real_x, real_y);
+		delta_value = abs(trial.Value - real_value);
+		if (delta_value<eps)
+		{
+			BestTrial = trial;
+			stop = true;
+		}
+	}
+	Result res;
+	res.x = FindRealX(BestTrial.x);
+	res.y = FindRealY(BestTrial.x);
+	res.Value = BestTrial.Value;
+	res.points = Trials.size();
+	Clean();
+	return res;
+}
+
 // Инициализация процесса поиска
 void CMethod::Init() {
 	//fopen_s(&f, "data.csv", "w");
@@ -180,7 +237,6 @@ void CMethod::Init() {
 	double x = FindRealX(trial.x);
 	double y = FindRealY(trial.x);
 	//fprintf(f, "%f;%f;\n", x, y);
-	
 }
 
 // Определение множества I
@@ -337,7 +393,7 @@ bool CMethod::InsertTrial(CTrial Trial) {
 			return true;
 	}
 	//Оценка значений 
-	if (Trial.index > MaxIndex || Trial.index == MaxIndex&&Trial.Value < BestTrial.Value) {
+	if (Trial.index > MaxIndex || Trial.index == MaxIndex && Trial.Value < BestTrial.Value) {
 		BestTrial = Trial;
 		MaxIndex = Trial.index;
 	}
