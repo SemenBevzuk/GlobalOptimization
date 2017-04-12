@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReductionDimensionPeano", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SerialExperiment", "SerialExperiment\SerialExperiment.vcxproj", "{6FD50223-0884-47A5-BCFA-51426E8C18FF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Direct", "Direct\Direct.vcxproj", "{F8057B20-FD32-4DB3-9181-2C74FE97D1D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,10 @@ Global
 		{6FD50223-0884-47A5-BCFA-51426E8C18FF}.Debug|Win32.Build.0 = Debug|Win32
 		{6FD50223-0884-47A5-BCFA-51426E8C18FF}.Release|Win32.ActiveCfg = Release|Win32
 		{6FD50223-0884-47A5-BCFA-51426E8C18FF}.Release|Win32.Build.0 = Release|Win32
+		{F8057B20-FD32-4DB3-9181-2C74FE97D1D9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F8057B20-FD32-4DB3-9181-2C74FE97D1D9}.Debug|Win32.Build.0 = Debug|Win32
+		{F8057B20-FD32-4DB3-9181-2C74FE97D1D9}.Release|Win32.ActiveCfg = Release|Win32
+		{F8057B20-FD32-4DB3-9181-2C74FE97D1D9}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
