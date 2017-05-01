@@ -36,6 +36,5 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i<im.NumFuncs; i++)
 		im.r[i] = 2;
 	im.Run();
-	//std::cout << "Xmin = " << im.BestTrial.x << " Ymin = " << im.BestTrial.Value << std::endl; 
 	return 0;
 }

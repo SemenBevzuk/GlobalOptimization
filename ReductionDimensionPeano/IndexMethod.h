@@ -3,9 +3,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <fstream>
+#include <string>
 
 #define MaxFuncs 10
 #include "map.h"
+
 
 typedef double(*pFunc)(double, double);
 
@@ -100,6 +102,9 @@ private:
 
 	FILE *f;
 
+	void PrintPoints();
+	void PrintLinesObjectiveFunc();
+	void PrintLinesBoundaryFunc();
 };
 
 //Главная функция индексного метода
@@ -126,20 +131,23 @@ void CMethod::Run() {
 			trial = MakeTrial(0.5*(t->x + t1->x));
 		}
 		else {
-			//trial = MakeTrial(0.5*(t->x + t1->x) - (t->Value - t1->Value) / (M[t->index] * 2 * r[t->index]));
 			trial = MakeTrial(0.5*(t->x + t1->x) - sign(t->Value - t1->Value)*pow(fabs(t->Value - t1->Value) / M[t->index], N)*(1.0 / (2 * r[t->index])));
 		}
-		std::cout << "#"<<count << " X = " << trial.x << " Value = " << trial.Value << " TrialIndex = " << trial.index << " MaxIndex = " << MaxIndex << "\n";
+
+		/*std::cout << "#"<<count << " X = " << trial.x << " Value = " << trial.Value << " TrialIndex = " << trial.index << " MaxIndex = " << MaxIndex << "\n";
 		std::cout << " " << " x = " << FindRealX(trial.x) << " y = " << FindRealY(trial.x)<<"\n\n";
 		if (count % 10 == 0) {
 			std::cout << "CURRENT BEST:" << " X = " << FindRealX(BestTrial.x) << " Y = " << FindRealY(BestTrial.x) << " Value = " << BestTrial.Value << "\n";
-		}
+		}*/
 		count++;
 		//Вставка результатов очередного испытания
 		stop = InsertTrial(trial);
 	}
 	fclose(f);
 	std::cout << "BEST:" << " X = " << FindRealX(BestTrial.x) << " Y = " << FindRealY(BestTrial.x) << " Z = " << BestTrial.Value << "\n\n";
+	PrintPoints();
+	PrintLinesObjectiveFunc();
+	PrintLinesBoundaryFunc();
 }
 
 // Инициализация процесса поиска
@@ -327,4 +335,60 @@ bool CMethod::InsertTrial(CTrial Trial) {
 		MaxIndex = Trial.index;
 	}
 	return false;
+}
+
+inline void CMethod::PrintPoints() { // создаём файл с размерами графика и точками испытаний
+	std::string file_name = "log\\function_points.csv";
+	std::ofstream current_func_points(file_name);
+	double temp_x, temp_y;
+	current_func_points << SearchAreas[0].a << ';' << SearchAreas[0].b << ';'
+						<< SearchAreas[1].a << ';' << SearchAreas[1].b << std::endl;
+	for (std::set<CTrial>::const_iterator iter = Trials.begin(); iter != Trials.end(); iter++) {
+		temp_x = FindRealX(iter->x);
+		temp_y = FindRealY(iter->x);
+		current_func_points << temp_x << ';' << temp_y << std::endl;
+	}
+	current_func_points.close();
+}
+
+inline void CMethod::PrintLinesObjectiveFunc() // создаём файл с сеткой целевой функции
+{
+	double i = SearchAreas[0].a;
+	double j = SearchAreas[1].a;
+	double step = 0.01;
+	int count_points = ((SearchAreas[0].b - SearchAreas[0].a) / 0.01)*((SearchAreas[1].b - SearchAreas[1].a) / 0.01);
+
+	std::string file_name = "log\\function_lines.csv";
+	std::ofstream current_func(file_name);
+	while (i <  SearchAreas[0].b) {
+		while (j <  SearchAreas[1].b) {
+			current_func << i << ';' << j << ';' << Funcs[NumFuncs - 1](i, j) << std::endl;
+			j = j + step;
+		}
+		i = i + step;
+		j = 0;
+	}
+	current_func.close();
+}
+
+inline void CMethod::PrintLinesBoundaryFunc() // создаём файлы с сеткой для ограничений
+{
+	
+	double step = 0.01;
+	for (int count_func = 0; count_func < NumFuncs - 1; count_func++)
+	{
+		double i = SearchAreas[0].a;
+		double j = SearchAreas[1].a;
+		std::string file_name = "log\\function_lines_" + std::to_string(count_func) + ".csv";
+		std::ofstream current_func(file_name);
+		while (i <  SearchAreas[0].b) {
+			while (j <  SearchAreas[1].b) {
+				current_func << i << ';' << j << ';' << Funcs[count_func](i, j) << std::endl;
+				j = j + step;
+			}
+			i = i + step;
+			j = 0;
+		}
+		current_func.close();
+	}
 }

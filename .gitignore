@@ -30,3 +30,5 @@
 
 *.vcxproj
 *.vcxproj.filtres
+*.csv
+*.png

@@ -1,9 +1,11 @@
 #include <iostream>
 #include "IndexMethod.h"
 #include "vagris.h"
+#include <string>
 
 int main(int argc, char* argv[]) {
 	FILE *f;
+	FILE *current_func;
 	fopen_s(&f, "log\\results.csv", "w");
 
 	int nf;
@@ -16,7 +18,7 @@ int main(int argc, char* argv[]) {
 	im.NumFuncs = 1;
 	im.SetSearchAreas(0, 1.001, 0, 1.001);
 	im.Funcs[0] = random_func;
-	im.r[0] = 4;
+	im.r[0] = 3;
 	Result res;
 	int right = 0;
 	bool IsCorrect;
@@ -25,11 +27,14 @@ int main(int argc, char* argv[]) {
 	int Correct[101];
 	double delta[101];
 	Result results[101];
-	for (nf = 1; nf <= 100; nf++) {
+
+	for (nf = 1; nf <= 100; nf++) { 
 		IsCorrect = false;
 		set_random(nf);
-		//res = im.Run();
-		res = im.Run(nf, eps);
+
+		res = im.Run(nf);
+		//res = im.Run(nf, eps);
+
 		results[nf] = res;
 		real_x = rand_minimums[(nf - 1) * 2];
 		real_y = rand_minimums[(nf - 1) * 2 + 1];
@@ -48,8 +53,29 @@ int main(int argc, char* argv[]) {
 		//std::cout << "	Min is : (" <<res.x << "; " << res.y << "), Value = "<<res.Value <<" Points: " << res.points <<std::endl;
 		//std::cout << "	Global min is : (" << real_x << "; " << real_y << "), Value = " << real_value << std::endl;
 
+		//Создание файла для сетки текущей функции 
+		double i = 0;
+		double j = 0;
+		double step = 0.001;
+		
+		std::string file_name = "log\\function_lines_" + std::to_string(nf) + ".csv";
+		std::ofstream current_func(file_name);
+		while (i < 1) 
+		{
+			while (j < 1) 
+			{
+				current_func << i << ';' << j << ';' << random_func(i,j) << std::endl;
+				j = j + step;
+			}
+			i = i + step;
+			j = 0;
+		}
+		current_func.close();
+		
+
 		fprintf(f, "%f;%f;%f;%f;%f;%f;%d;%d;\n", res.x, res.y, res.Value, real_x, real_y, real_value, res.points, IsCorrect);
 	} 
+
 	std::cout << "Ready!" << std::endl;
 	std::cout << "Correct = " << right << "%" << std::endl << std::endl;
 	for (int i = 1; i <= 100; i++)

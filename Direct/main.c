@@ -3,6 +3,8 @@
 #include <math.h>
 #include "headers_direct.h"
 
+//NLOPT см Direct
+
 void setdim(int *n);
 void setbounds(int n, double* lb, double* ub);
 double funct(int n, double* x);
@@ -12,8 +14,9 @@ int main(int argc, int **argv){
 	double *lb, *ub, *xott;
 	double fbest, fglob;
 
-	int Number_of_experiments = 1;	//для тестов
-	int Function_number = 2;		//для тестов
+	int Number_of_experiments = 0;	//для тестов
+	int Count_of_experiments = 0;
+	int Function_number = 3;		//для тестов
 	
 	setdim(&n);
 	lb    = (double *)malloc(n*sizeof(double));
@@ -29,17 +32,22 @@ int main(int argc, int **argv){
 	}
 	printf("\n");
 	fglob = -100.0;
-	maxint = 15000;
+	maxint = 1000;//15000;
 
 	direct(n, lb, ub, maxint, fglob, xott, &fbest, funct, &Number_of_experiments, Function_number);
 	fglob = fbest;
-	//direct(n,lb,ub,maxint,fglob,xott,&fbest,funct);
+	Count_of_experiments += Number_of_experiments;
+	direct(n, lb, ub, maxint, fglob, xott, &fbest, funct, &Number_of_experiments, Function_number);
+	Count_of_experiments += Number_of_experiments;
 
 	printf("fbest=%f\n",fbest);
 	for(i=0;i<n;i++) {
 		printf("xbest[%d]=%f\n",i,xott[i]);
 	}
-	printf("Number_of_experiments = %d\n", Number_of_experiments);
+	printf("Number_of_experiments = %d\n", Count_of_experiments);
+
+	char ch;
+	scanf_s(&ch);
 	return 0;
 }
 

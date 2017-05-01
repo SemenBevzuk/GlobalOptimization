@@ -94,7 +94,7 @@ void direct(int n, double *lb, double *ub, int maxint, double fglob, double *xbe
 	toldiam     = 0.0 *sqrt((double)n)/2.0; 
 	tolglob     = 1.e-3;
 	eps         = 1.e-3;
-	//maxnf       = 2000000000;
+	//maxnf       = 2000000000;//
 	halt        = 0;
 	trovato     = 0;
 

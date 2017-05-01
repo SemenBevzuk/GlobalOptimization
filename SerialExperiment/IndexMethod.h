@@ -8,6 +8,7 @@
 
 #define MaxFuncs 10
 #include "map.h"
+#include <string>
 
 typedef double(*pFunc)(double, double);
 
@@ -23,9 +24,9 @@ struct Result {
 };
 //Точка испытания
 struct CTrial {
-	double Value;
-	int index;
-	double x;
+	double Value;	//значение функции в точке
+	int index;		//индекс точки
+	double x;		//точка после свертки, реальные координаты через FindReal_...
 };
 
 struct SearchArea {
@@ -63,7 +64,7 @@ public:
 	//Деструктор по умолчанию
 	~CMethod() {}
 	//Запуск метода
-	Result Run();
+	Result Run(int nfunc);
 	//Запуск метода c возможностью сравнения ответа непосредственно 
 	Result Run(int nfunc, double eps);
 	//Функции задачи
@@ -111,12 +112,13 @@ private:
 	//Поиск максимальнйо длины инетрвала из области поиска
 	double FindMaxLength();
 
-	//FILE *f;
+	//Вывод точек испытания наружу
+	void PrintPoints(int nf);
 
 };
 
 //Главная функция индексного метода
-Result CMethod::Run() {
+Result CMethod::Run(int nfunc){
 	// Инициализация процесса поиска
 	Init();
 	//Условие остановки не выполнено
@@ -141,11 +143,6 @@ Result CMethod::Run() {
 		else {
 			trial = MakeTrial(0.5*(t->x + t1->x) - sign(t->Value - t1->Value)*pow(fabs(t->Value - t1->Value) / M[t->index], N)*(1.0 / (2 * r[t->index])));
 		}
-		//std::cout << "#"<<count << " X = " << trial.x << " Value = " << trial.Value << " TrialIndex = " << trial.index << " MaxIndex = " << MaxIndex << "\n";
-		//std::cout << " " << " x = " << FindRealX(trial.x) << " y = " << FindRealY(trial.x)<<"\n\n";
-		//if (count % 10 == 0) {
-			//std::cout << "CURRENT BEST:" << " X = " << FindRealX(BestTrial.x) << " Y = " << FindRealY(BestTrial.x) << " Value = " << BestTrial.Value << "\n";
-		//}
 		count++;
 		//Вставка результатов очередного испытания
 		stop = InsertTrial(trial);
@@ -157,6 +154,8 @@ Result CMethod::Run() {
 	res.Value = BestTrial.Value;
 	res.points = Trials.size();
 	//std::cout << "BEST:" << " X = " << FindRealX(BestTrial.x) << " Y = " << FindRealY(BestTrial.x) << " Z = " << BestTrial.Value << "\n\n";
+	PrintPoints(nfunc);
+
 	Clean();
 	return res;
 }
@@ -210,6 +209,7 @@ Result CMethod::Run(int nfunc, double eps) {
 	res.y = FindRealY(BestTrial.x);
 	res.Value = BestTrial.Value;
 	res.points = Trials.size();
+
 	Clean();
 	return res;
 }
@@ -387,6 +387,7 @@ bool CMethod::InsertTrial(CTrial Trial) {
 		pTrial j = ins.first, j1 = ins.first;
 		j++;
 		j1--;
+
 		//Выполнено условие остановки
 		//std::cout << pow(fabs(j->x - j1->x), 1.0 / N) << "\n";
 		if (pow(fabs(j->x - j1->x), 1.0/N) < eps)
@@ -398,6 +399,21 @@ bool CMethod::InsertTrial(CTrial Trial) {
 		MaxIndex = Trial.index;
 	}
 	return false;
+}
+
+inline void CMethod::PrintPoints(int nf)
+{
+	std::string file_name = "log\\function_points_" + std::to_string(nf) + ".csv";
+	std::ofstream current_func_points(file_name);
+	double temp_x, temp_y;
+
+	for (std::set<CTrial>::const_iterator iter = Trials.begin(); iter != Trials.end(); iter++) {
+		temp_x = FindRealX(iter->x);
+		temp_y = FindRealY(iter->x);
+		current_func_points << temp_x << ';' << temp_y << std::endl;
+	}
+
+	current_func_points.close();
 }
 
 inline void CMethod::Clean()
